@@ -1,0 +1,164 @@
+% my $name = $Name || $NamePrefix . $id . ( $Multiple ? '-Values' : '-Value' );
+<table id="custom-field-<% $id %>" class="multi-line-csv" cellspacing="5">
+% my $row = 0;
+% my $col = 0;
+% foreach my $line (@lines) {
+  <tr class="collection-as-table">
+%    if ($csv->parse($line)) {
+%        my @Fields = $csv->fields();
+%        push @Fields, 'selector';
+%        $col = 0;
+%        foreach my $Field (@Fields) {
+%           $print_content->($row, $col, $name, $Field);
+%           $col++;
+%        }
+%    }
+  </tr>
+%    $row++;
+%}
+</table>
+
+<p align="right">
+  <input type="button" style="width: auto" class="button" id="CF-<% $id %>-add" name="addRow-CF-<% $id %>" value="<%loc('Add Row')%>" />
+  <input type="button" style="width: auto" class="button" id="CF-<% $id %>-del" name="delRow-CF-<% $id %>" value="<%loc('Delete Row')%>" />
+</p>
+
+<script type="text/javascript">
+// This is the select all checkbox
+jQuery("table#custom-field-<% $id %> #Row-0-Delete").click(function() {
+    var chkSelector = "table#custom-field-<% $id %> td :checkbox";
+    jQuery(chkSelector).prop('checked', jQuery(this).prop('checked'));
+});
+</script>
+
+% $m->comp('/Elements/AfterMultiLineCsv', Id => $id);
+
+<%INIT>
+use Text::CSV;
+
+use Data::Dumper;
+
+# Default fields if no default is set on CustomField creation
+my @lines = ("Title,Description");
+
+# Load the configuration for this MultiLineCsv CustomField
+my $settings = RT->Config->Get('CSVCustomFields');
+my $MultiLineCfg = $settings->{$CustomField->Name};
+
+my $id = $CustomField->Id;
+
+my $csv = Text::CSV->new ({ always_quote => 1, })
+    or $RT::Logger->error("Cannot use Text::CSV: ".Text::CSV->error_diag());
+
+if ( $Values ) {
+    $Default = join "\n", map $_->Content, @{ $Values->ItemsArrayRef };
+}
+unless ( $Multiple ) {
+    $Default =~ s/\s*\n+\s*/ /g if $Default;
+}
+
+
+# If we aleady have data then add a extra blank line with the appropriate
+# number of fields
+if ($Default) {
+    @lines = split /\n/, $Default;
+}
+
+# Override column names from configuration if required
+if ($csv->parse($lines[0])) {
+    my @Fields = $csv->fields();
+
+    # Override any default field names
+    if (scalar(@$MultiLineCfg) != 0) {
+	    my $i = 0;
+	    foreach my $cfg (@$MultiLineCfg) {
+	        if (exists $cfg->{title}) {
+	            @Fields[$i] = $cfg->{title};
+	        }
+	        $i++;
+	    }
+    }
+
+    my $no_fields = @Fields;
+    $no_fields--;
+    my $line = "," x $no_fields;
+    push @lines, $line;
+    $lines[0] = join(',', @Fields);
+}
+
+# Subroutine for displaying the td tags
+my $print_content = sub {
+    my ($row_no, $col_no, $name, $field) = @_;
+
+    my $cell = '<';
+    my $input = '<input ';
+    my $th_class = q{};
+    my $input_type = 'text';
+    my ($cell_type, $id, $class);
+    my ($name_str, $input_id, $input_name);
+
+    $cell_type = 'th' if $row_no == 0;
+    $cell_type = 'td' if $row_no != 0;
+
+    $input_type = "hidden" if $cell_type =~ m/\Ath\z/xms;
+    $input .= 'size="0" ' if $cell_type =~ m/\Ath\z/xms;
+    $th_class = " collection-as-table" if $cell_type =~ m/\Ath\z/xms
+                                            and $field !~ m/\Aselector\z/xms;
+
+    # Build td/th id and class attributes
+    $id = 'column-' . $col_no;
+    $class = 'class="' . $id . $th_class . '"';
+    $id = 'id="' . $id . '"';
+
+    if ($field =~ m/\Aselector\z/xms) {
+        $name_str = sprintf("Row-%d-Delete", $row_no);
+        $input_id = 'id="' . $name_str . '"';
+        $input_name = 'name="' . $name_str . '"';
+        $input_type = 'type="checkbox"';
+        my $input;
+
+        $input = sprintf("<input %s %s %s>", $input_id, $input_name, $input_type);
+        $cell .= sprintf("%s %s %s>", $cell_type, $id, $class);
+
+        # Output opening cell tags
+        $m->out(sprintf("    %s\n", $cell));
+        # Output the input tag
+        $m->out(sprintf("      %s\n", $input));
+        # Output closing cell tags
+        $m->out(sprintf("    </%s>\n", $cell_type));
+    }
+    else {
+
+        my $input_value;
+
+        $name_str = sprintf("%s--Row%d-Col%d", $name, $row_no, $col_no);
+        $input_type = 'type="' . $input_type . '"';
+        $input_id = 'id="' . $name_str . '"';
+        $input_name = 'name="' . $name_str . '"';
+        $input_value = 'value="' . $field . '"';
+
+        # Build the cell from the various components
+        $input = sprintf("<input %s %s %s %s>", $input_id, $input_name, $input_type,
+                                                $input_value);
+        $input .= $field if $cell_type =~ m/\Ath\z/xms;
+        $cell .= sprintf("%s %s %s>%s", $cell_type, $id, $class);
+
+        # Output opening cell tags
+        $m->out(sprintf("    %s\n", $cell));
+        # Output the input tag
+        $m->out(sprintf("      %s\n", $input));
+        # Output closing cell tags
+        $m->out(sprintf("    </%s>\n", $cell_type));
+    }
+
+};
+</%INIT>
+<%ARGS>
+$Object => undef
+$CustomField => undef
+$NamePrefix => undef
+$Name => undef
+$Default => undef
+$Values => undef
+$Multiple => undef
+</%ARGS>

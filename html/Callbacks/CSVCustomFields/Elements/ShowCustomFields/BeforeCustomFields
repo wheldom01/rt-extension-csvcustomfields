@@ -1,0 +1,38 @@
+<%INIT>
+# FIXME: needs changing to debug
+$RT::Logger->error("Callback activated");
+my $settings = RT->Config->Get('CSVCustomFields');
+
+# Loop over the customfields and display multi line csv fields
+while ( my $CustomField = $CustomFields->Next ) {
+    my $name = $CustomField->Name;
+    my $id = $CustomField->Id;
+
+    # Skip to the next customfield if field is not configured as a
+    # multilinecsv field in the configuration
+    next if not exists($settings->{$name});
+
+    # Display the customfield using the relevant widget
+    $m->comp('/Elements/ShowCustomFieldMultiLineCsv',
+            Object          => $Object,
+            CustomField     => $CustomField,
+            MultiLineCfg    => $settings->{$name},
+            ARGSRef         => $ARGSRef,
+            );
+
+    # Now exclude these field from the CustomField list so it isn't displayed
+    # twice
+    $CustomFields->Limit(
+                    FIELD              => 'Name',
+                    OPERATOR           => '!=',
+                    VALUE              => "$name",
+                    ENTRYAGGREGATOR    => 'AND',
+                    CASESENSITIVE      => 0);
+}
+
+</%INIT>
+<%ARGS>
+$Object => undef
+$CustomFields => undef
+$ARGSRef => undef
+</%ARGS>

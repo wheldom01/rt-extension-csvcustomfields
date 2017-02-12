@@ -1,0 +1,110 @@
+<table>
+  <tbody>
+    <tr class="custom-field custom-field-<% $id %>">
+    <td class="label"><% $name %>:</td>
+    <td style="padding-left: 25px">
+      <table id="custom-field-<% $id %>" class="multi-line-csv view" cellspacing="5">
+        <tbody>
+% my $row = 0;
+% foreach my $line (@lines) {
+        <tr class="collection-as-table">
+%    if ($csv->parse($line)) {
+%        my @Fields = $csv->fields();
+%        my $col = 0;
+%        foreach my $Field (@Fields) {
+%               $print_content->($row, $col, $Field);
+%           $col++;
+%        }
+%    }
+        </tr>
+%    $row++;
+% }
+        <tbody>
+      </table>
+    </td>
+  </tbody>
+</table>
+
+<script type="text/javascript">
+    var rowCount = <% $count %>;
+
+    if ( rowCount < 2 ) {
+        jQuery('table#custom-field-<% $id %>').closest("tr").addClass('unset-field');
+    }
+</script>
+
+<%INIT>
+use Text::CSV;
+
+# Default fields if no default is set on CustomField creation
+my @lines = ("Title,Description");
+
+my $csv = Text::CSV->new ({ always_quote => 1, })
+    or $RT::Logger->error("Cannot use Text::CSV: ".Text::CSV->error_diag());
+
+my $name = $CustomField->Name;
+my $id = $CustomField->Id;
+my $Values = $Object->CustomFieldValues($CustomField->Id);
+my $count = $Values->Count;
+
+my $Default = $Values->First;
+
+if ( $Values ) {
+    $Default = join "\n", map $_->Content, @{ $Values->ItemsArrayRef };
+}
+
+# If we already have data then add a extra blank line with the appropriate
+# number of fields
+if ($Default) {
+    @lines = split /\n/, $Default;
+}
+
+# Override column names from configuration if required
+if ($csv->parse($lines[0])) {
+    my @Fields = $csv->fields();
+
+    # Override any default field names
+    if (scalar(@$MultiLineCfg) != 0) {
+	    my $i = 0;
+	    foreach my $cfg (@$MultiLineCfg) {
+	        if (exists $cfg->{title}) {
+	            @Fields[$i] = $cfg->{title};
+	        }
+	        $i++;
+	    }
+    }
+
+    $lines[0] = join(',', @Fields);
+}
+
+# Subroutine for displaying the td tags
+my $print_content = sub {
+    my ($row_no, $col_no, $field) = @_;
+
+    my $cell = '<';
+    my $th_class = q{};
+    my ($cell_type, $id, $class);
+
+    $cell_type = 'th' if $row_no == 0;
+    $cell_type = 'td' if $row_no != 0;
+    $th_class = " collection-as-table" if $cell_type =~ m/\Ath\z/xms
+                                            and $field !~ m/\Aselector\z/xms;
+
+    # Build id and class attributes
+    $id = 'column-' . $col_no;
+    $class = 'class="' . $id . $th_class . '"';
+    $id = 'id="' . $id . '"';
+
+    # Build the cell from the various components
+    $cell .= sprintf("%s %s %s>%s</%s>", $cell_type, $id, $class, $field,
+                                         $cell_type);
+    $m->out("          " . $cell . "\n");
+};
+
+</%INIT>
+<%ARGS>
+$Object => undef
+$CustomField => undef
+$MultiLineCfg => undef
+$ARGSRef => undef
+</%ARGS>

@@ -1,0 +1,23 @@
+<%INIT>
+# FIXME: needs changing to debug
+$RT::Logger->error("Callback activated");
+my $settings = RT->Config->Get('CSVCustomFields');
+
+# Only override component name if we are called from a url containing "Ticket"
+my $caller = $r->uri;
+if ( $caller =~ m/Ticket/xms ) {
+    my $name = $CustomField->Name;
+
+    # Only override component name if the CustomField is configured as a
+    # MultiLineCsv field
+    if (exists($settings->{$name}) and ($$Name =~ m/EditCustomFieldFreeform/xms)) {
+        $$Name = "EditCustomFieldMultiLineCsv";
+        # FIXME: needs changing to debug
+        $RT::Logger->error("Component name set to EditCustomFieldMultiLineCsv");
+    }
+}
+</%INIT>
+<%ARGS>
+$CustomField => undef
+$Name => undef
+</%ARGS>

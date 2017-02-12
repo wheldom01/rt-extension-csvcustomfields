@@ -1,0 +1,72 @@
+<script type="text/javascript">
+
+var updateMultiLineCsv = function() {
+
+    // Delete one or more selected rows from the table
+    jQuery('[name="delRow-CF-<% $Id %>"]').click(function() {
+        var cfId = jQuery(this).attr('name').replace(/delRow-CF-/, "");
+
+        var chkSelector = "table#custom-field-" + cfId + " td :checked";
+        jQuery(chkSelector).closest("tr").remove()
+    });
+
+    // Add a new blank row to the table
+    jQuery('[name="addRow-CF-<% $Id %>"]').click(function() {
+        var cfId = jQuery(this).attr('name').replace(/addRow-CF-/, "");
+
+        var chkSelector = "table#custom-field-" + cfId;
+
+        // Get information from our table
+        //      no. rows/columns
+        //      Ticket Id/Customfield Id from Row0 Column0
+        var cfID = jQuery(chkSelector + ' tr:first th:first input').attr("id").replace(/--Row0-Col0/, "");
+        var rowCount = jQuery(chkSelector + ' tr:last').index() + 1;
+        var colCount = jQuery(chkSelector).find("tr:first th").length;
+
+        var rowData = '<tr class="collection-as-table">';
+        var baseName = cfID + '--Row' + rowCount;
+        var inputType = 'text';
+
+        var row = jQuery('<tr />', { 'class' : 'collection-as-table' });
+
+        for(i = 0; i < colCount; i++) {
+            // Last column is different so create variable data
+            if ( i == colCount - 1 ) {
+                className = 'column-' + i;
+                fieldName = 'Row-' + rowCount + '-Delete';
+                var fieldID = fieldName;
+                inputType = 'checkbox';
+            }
+            // All other columns are of the same format
+            else {
+                className = '';
+                fieldName = baseName + '-Col' + i;
+                var fieldID = fieldName;
+                inputType = 'text';
+            }
+
+            var input = jQuery('<input />', {
+                            'class'     : className,
+                            'id'        : fieldID,
+                            'name'      : fieldName,
+                            'type'      : inputType,
+                        });
+
+            var cell = jQuery('<td />', {
+                            'id'        : 'column-' + i,
+                            'class'     : 'column-' + i,
+                        });
+            jQuery(cell).append(input);
+            jQuery(row).append(cell);
+        }
+
+        jQuery(chkSelector + ' > tbody:last-child').append(row);
+
+    });
+
+};
+jQuery(updateMultiLineCsv);
+</script>
+<%ARGS>
+$Id => undef
+</%ARGS>

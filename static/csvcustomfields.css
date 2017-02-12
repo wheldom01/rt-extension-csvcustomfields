@@ -1,0 +1,63 @@
+.multi-line-csv {
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    width: 100%;
+}
+.multi-line-csv th {
+    color: #3858a3;
+}
+/* No. Units and Unit Cost columns */
+.multi-line-csv .column-0,
+.multi-line-csv .column-2 {
+    text-align: center;
+    width: 75px;
+}
+/* Description column */
+.multi-line-csv .column-1 {
+    width: auto;
+}
+/* Total column */
+.multi-line-csv .column-3 {
+    text-align: center;
+    width: 55px;
+}
+/* Checkbox column */
+.multi-line-csv .column-4 {
+    text-align: center;
+}
+/* No. Units and Unit Cost columns */
+.multi-line-csv .column-0 input[type=text],
+.multi-line-csv .column-2 input[type=text] {
+    text-align: center;
+    width: 40px;
+}
+/* Description column */
+.multi-line-csv .column-1 input[type=text] {
+    text-align: left;
+    width: 95%;
+}
+/* Total column */
+.multi-line-csv .column-3 input[type=text] {
+    text-align: center;
+    width: 55px;
+}
+/* Style the table on the ticket display page */
+.multi-line-csv.view {
+    border-bottom : 1px solid #cccccc;
+    margin-bottom : 1em;
+}
+.multi-line-csv.view th {
+    padding-bottom: 1em;
+}
+.multi-line-csv.view tr td {
+    border-top: 1px solid #cccccc;
+}
+.multi-line-csv.view tr td:first-child {
+    border-left: 1px solid #cccccc;
+}
+.multi-line-csv.view tr td:last-child {
+    border-right: 1px solid #cccccc;
+}
+.multi-line-csv.view tr:nth-child(even) td {
+    background: #eee;
+}
