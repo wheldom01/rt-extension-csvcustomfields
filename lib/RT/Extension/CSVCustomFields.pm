@@ -115,4 +115,9 @@ This is free software, licensed under:
 
 =cut
 
+# Add the base stylesheet to the RT paths
+RT->AddStyleSheets('csvcustomfields.css');
+
+
+
 1;
