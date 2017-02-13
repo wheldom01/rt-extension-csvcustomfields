@@ -66,32 +66,66 @@ Adding this line:
 A RT CustomField can be enabled as a CSV CustomField by adding its name to the
 configuration hash as shown below:
 
-Set(%CSVCustomFields,
-    'Books'      => [],
-);
+    Set(%CSVCustomFields,
+        'Books'      => [],
+    );
 
 The CustomField "Books" will utilise the hardcoded default column titles of
 "Title" and "Description". However the configeration syntax allows you to
 have more columns if required and to name those column titles as you see fit.
 
-Set(%CSVCustomFields,
-    'Books'            => [             # Stick to a 2 column layout
-        { 'title' => "Name" }           # Rename the first column title to "Name"
-    ],
-    'Newspapers'       => [             # Stick to a 2 column layout
-        {},                             # Leave the first column title as the default
-        { 'title' => "Desc" }           # Rename the second column title to "Desc"
-    ],
-    'Order'           => [              # Create a 6 column layout
-        { 'title' =>  "No."},
-        {},                             # Leave the second column title as the default
-        { 'title' =>  "Cost"},
-        { 'title' =>  "Tax"},
-        { 'title' =>  "Total"},
-    ],
-);
+    Set(%CSVCustomFields,
+        'Books'            => [             # Stick to a 2 column layout
+            { 'title' => "Name" }           # Rename the first column title to "Name"
+        ],
+        'Newspapers'       => [             # Stick to a 2 column layout
+            {},                             # Leave the first column title as the default
+            { 'title' => "Desc" }           # Rename the second column title to "Desc"
+        ],
+        'Order'           => [              # Create a 6 column layout
+            { 'title' =>  "No."},
+            {},                             # Leave the second column title as the default
+            { 'title' =>  "Cost"},
+            { 'title' =>  "Tax"},
+            { 'title' =>  "Total"},
+        ],
+    );
 
-NOTE: The onscreen layout of the columns can be modified by adding css files
+Table column layout can be modified by adding css files to local/static/css
+then adding a CSSFiles configuration line to the RT_Site-Config.pm file
+
+    Set( @CSSFiles, ('CSVcf-books.css', 'CSFcf-Order.css) );
+
+which may contain something akin to the following css.
+
+    table#custom-field-4 #column-0,
+    table#custom-field-4 #column-2 {
+        text-align: center;
+        width: 75px;
+    }
+    table#custom-field-4 #column-1 {
+        width: auto;
+    }
+    table#custom-field-4 #column-3 {
+        text-align: center;
+        width: 55px;
+    }
+    table#custom-field-4 #column-4 {
+        text-align: center;
+    }
+    table#custom-field-4 #column-0 input[type=text],
+    table#custom-field-4 #column-2 input[type=text] {
+        text-align: center;
+        width: 40px;
+    }
+    table#custom-field-4 #column-1 input[type=text] {
+        text-align: left;
+        width: 95%;
+    }
+    table#custom-field-4 #column-3 input[type=text] {
+        text-align: center;
+        width: 55px;
+    }
 
 =back
 

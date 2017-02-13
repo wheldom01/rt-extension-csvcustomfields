@@ -1,0 +1,120 @@
+NAME
+    RT-Extension-CSVCustomFields - displays a freeform customfield as
+    multiple input fields.
+
+DESCRIPTION
+    This extension for RT adds the ability to display freeform customfields
+    as multiple input form fields and combines the resulting data in a comma
+    seperated format.
+
+RT VERSION
+    Works with RT 4.4
+
+INSTALLATION
+    perl Makefile.PL
+    make
+    make install
+        May need root permissions
+
+    Edit your /opt/rt4/etc/RT_SiteConfig.pm
+        Adding this line:
+
+            Plugin('RT::Extension::CSVCustomFields');
+
+    Clear your mason cache
+            rm -rf /opt/rt4/var/mason_data/obj
+
+    Restart your webserver
+
+CONFIGURATION
+    A RT CustomField can be enabled as a CSV CustomField by adding its name
+    to the configuration hash as shown below:
+
+        Set(%CSVCustomFields,
+            'Books'      => [],
+        );
+
+    The CustomField "Books" will utilise the hardcoded default column titles
+    of "Title" and "Description". However the configeration syntax allows
+    you to have more columns if required and to name those column titles as
+    you see fit.
+
+        Set(%CSVCustomFields,
+            'Books'            => [             # Stick to a 2 column layout
+                { 'title' => "Name" }           # Rename the first column title to "Name"
+            ],
+            'Newspapers'       => [             # Stick to a 2 column layout
+                {},                             # Leave the first column title as the default
+                { 'title' => "Desc" }           # Rename the second column title to "Desc"
+            ],
+            'Order'           => [              # Create a 6 column layout
+                { 'title' =>  "No."},
+                {},                             # Leave the second column title as the default
+                { 'title' =>  "Cost"},
+                { 'title' =>  "Tax"},
+                { 'title' =>  "Total"},
+            ],
+        );
+
+    Table column layout can be modified by adding css files to
+    local/static/css then adding a CSSFiles configuration line to the
+    RT_Site-Config.pm file
+
+        Set( @CSSFiles, ('CSVcf-books.css', 'CSFcf-Order.css) );
+
+    which may contain something akin to the following css.
+
+        table#custom-field-4 #column-0,
+        table#custom-field-4 #column-2 {
+            text-align: center;
+            width: 75px;
+        }
+        table#custom-field-4 #column-1 {
+            width: auto;
+        }
+        table#custom-field-4 #column-3 {
+            text-align: center;
+            width: 55px;
+        }
+        table#custom-field-4 #column-4 {
+            text-align: center;
+        }
+        table#custom-field-4 #column-0 input[type=text],
+        table#custom-field-4 #column-2 input[type=text] {
+            text-align: center;
+            width: 40px;
+        }
+        table#custom-field-4 #column-1 input[type=text] {
+            text-align: left;
+            width: 95%;
+        }
+        table#custom-field-4 #column-3 input[type=text] {
+            text-align: center;
+            width: 55px;
+        }
+
+AUTHOR
+    Martin Wheldon <martin.wheldon@greenhills-it.co.uk<gt>
+
+BUGS
+    All bugs should be reported via email to
+
+        Lmailto:bug-RT-Extension-CSVCustomFields@greenhills-it.co.uk>
+
+LICENSE AND COPYRIGHT
+    This software is Copyright (c) 2017 by Martin Wheldon
+
+    This is free software, licensed under:
+
+      The GNU General Public License, Version 2, June 1991
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 64:
+        You forgot a '=back' before '=head1'
+
+    Around line 131:
+        =back without =over
+
