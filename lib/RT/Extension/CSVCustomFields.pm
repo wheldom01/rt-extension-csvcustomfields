@@ -61,6 +61,8 @@ Adding this line:
 
 =item Restart your webserver
 
+=back
+
 =head1 CONFIGURATION
 
 A RT CustomField can be enabled as a CSV CustomField by adding its name to the
@@ -127,7 +129,6 @@ which may contain something akin to the following css.
         width: 55px;
     }
 
-=back
 
 =head1 AUTHOR
 
@@ -150,7 +151,8 @@ This is free software, licensed under:
 =cut
 
 # Add the base stylesheet to the RT paths
-RT->AddStyleSheets('csvcustomfields.css');
+RT->AddStyleSheets('csvcustomfields.css')
+    if $RT::StaticPath;
 
 
 
