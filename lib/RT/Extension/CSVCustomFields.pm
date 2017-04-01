@@ -154,6 +154,72 @@ This is free software, licensed under:
 RT->AddStyleSheets('csvcustomfields.css')
     if $RT::StaticPath;
 
+sub SpliceCSVFields {
+    my $ARGSRef = shift;
+
+    # We are only interested if the keys containing Rows and Columns
+    my @Subkeys;
+    foreach my $key (keys %$ARGSRef) {
+        push (@Subkeys, $key) if $key =~ m/--Row\d+-Col\d+/xms;
+    }
+
+    # A simple sort is enough to put them in the correct order
+    @Subkeys = sort(@Subkeys);
+
+    my $CF_hash = ConvertFormFields(\@Subkeys, $ARGSRef);
+
+    # Now tidy up and push the CF data back into the ARGSRef
+    foreach my $key (keys %$CF_hash) {
+        # Split contents of hash key into a array and modify as required
+        my @lines = split /\n/, $CF_hash->{$key};
+
+        # Strip empty lines and trailing commas then reasemble into multiline
+        # string
+        @lines = grep { not /^,{1,}$/ } @lines;
+        @lines = map { s/,*$/\n/; $_ } @lines;
+        $CF_hash->{$key} = join '', @lines;
+        $ARGSRef->{$key} = $CF_hash->{$key};
+    }
+
+}
+
+sub ConvertFormFields {
+    my $FIELDSRef = shift;
+    my $ARGSRef = shift;
+
+    my $DATARef = {};
+    my @tmp;
+    my $value = q{};
+    my $cf = q{};
+    my $this_row = 0;
+    my $previous_row = 0;
+
+    # Assemble into a RT FreeForm text format
+    foreach my $key (@$FIELDSRef) {
+        ($cf, $this_row) = $key =~ m/\A         # Match start of string
+                                     ([\w\-:]+) # Capture the CustomField
+                                     --Row
+                                     (\d+)      # Capture the row number
+                                    /xms;
+
+        # Apply a line ending if we have reached the last column
+        if ($this_row > $previous_row) {
+            #$value =~ s/,$/\n/;
+            $DATARef->{$cf} =~ s/,$/\n/;
+        }
+        $previous_row = $this_row;
+
+        # Build the CF csv data and push into a temporary hash
+        $DATARef->{$cf} .= $ARGSRef->{$key} . ",";
+
+        # Remove all the keys as they would cause duplicate data to be added
+        delete $ARGSRef->{$key};
+    }
+
+    return $DATARef;
+
+}
+
 
 
 1;
