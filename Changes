@@ -1,4 +1,10 @@
 Revision history for RT-Extension-CSVCustomFields
 
+0.02 [02/04/2017]
+ - Moved Test module into correct directory
+ - Removed duplicate code from callbacks into library
+ - Updated Module::Install version from v1.16 to v1.17
+ - Fixed comments so they don't get rendered in the page
+
 0.01 [11/02/2017]
  - Initial version
