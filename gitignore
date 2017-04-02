@@ -14,3 +14,4 @@ pod2htm*.tmp
 /t/tmp
 /xt/tmp
 /.build
+/lib/RT/Extension/CSVCustomFields/Test.pm
