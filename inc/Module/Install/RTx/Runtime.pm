@@ -9,6 +9,7 @@ use File::Basename ();
 use POSIX qw (WIFEXITED);
 use File::Find;
 use Carp;
+use Cwd;
 
 
 # Switch
@@ -160,7 +161,7 @@ sub RTxPatch {
 
     _rt_runtime_load();
 
-    my @cmd = ($patch, $RT::BasePath, , '-p1', '-i');
+    my @cmd = ($patch, '-d', $RT::BasePath, '-p1', '-i');
 
     # Anonymous subroutine to apply all patches in a directory structure
     my $patch_rt = sub {
@@ -172,7 +173,7 @@ sub RTxPatch {
         return unless &_required_patch($File::Find::dir, $RT::VERSION);
 
         if ($_ =~ m/\.patch\z/xms) {
-            push @cmd, $_;
+            push @cmd, getcwd . "/$_";
             WIFEXITED(system(@cmd))
                 or croak "Couldn't run: " . join(' ', @cmd) . "($?)\n";
             pop @cmd;
@@ -180,7 +181,6 @@ sub RTxPatch {
     };
 
     find {wanted => $patch_rt}, $dir;
-
 }
 
 sub RTxPlugin {
