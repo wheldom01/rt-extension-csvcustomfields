@@ -16,22 +16,34 @@
 % # <http://www.gnu.org/licenses/>.
 % #
 
-<%args>
-$ARGSRef
-$skip_create
-$results => []
-</%args>
-<%init>
-$RT::Logger->debug("Callback ModifyAll.html/Default has been activated");
+<%INIT>
+my $RawCsvFields = {};
+
+RT::Logger->debug("Callback ModifyAll.html/Default has been activated");
+
+# Craete a array containing all CSVFields arguments
+my @Fields = grep { m/--Row\d+-Col\d+$/xms } keys %$ARGSRef;
+
+# Don't bother processing ARGSRef if we don't need to
+if (scalar @Fields != 0) {
+
+    # Create hash slice of CSVField arguments from ARGSRef and remove them
+    # from original ARGSRef hash reference
+    foreach my $field (@Fields) {
+        $RawCsvFields->{$field} = $ARGSRef->{$field};
+        delete $ARGSRef->{$field};
+    }
+
+}
 
 # Convert the CSV customfield arguments back into RT FreeForm text fields
-my $errors = RT::Extension::CSVCustomFields::SpliceCSVFields(
-    $ARGSRef    => $ARGSRef,
-);
+my $TextFields = RT::Extension::CSVCustomFields->SpliceCSVFields($RawCsvFields);
 
-if (@$errors) {
-    RT->Logger->error("Preventing create because update of ARGSRef failed");
-    $$skip_create = 1;
-    push @$results, @$errors;
-}
-</%init>
+# Merge processed text fields back into ARGSRef overwriting ARGSRef where
+# duplication occurs
+@{$ARGSRef}{keys %$TextFields} = values %$TextFields;
+
+</%INIT>
+<%ARGS>
+$ARGSRef => undef
+</%ARGS>
