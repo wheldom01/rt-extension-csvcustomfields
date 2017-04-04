@@ -15,7 +15,6 @@ my $CreateUrl = "/Ticket/Create.html?Queue=" . $queue->id;
 $m->login;
 
 # open ticket "Create.html" page
-# FIXME: need to find out why this breaks
 $m->get_ok($CreateUrl, "fetched $CreateUrl");
 ok $m->form_name('TicketCreate'), "found form TicketCreate";
 
