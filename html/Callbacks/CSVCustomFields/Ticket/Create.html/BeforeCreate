@@ -16,16 +16,22 @@
 % # <http://www.gnu.org/licenses/>.
 % #
 
-<%INIT>
-use RT::Extension::CSVCustomFields
-
-# FIXME: needs changing to debug
-$RT::Logger->error("Callback activated");
+<%args>
+$ARGSRef
+$skip_create
+$results => []
+</%args>
+<%init>
+$RT::Logger->debug("Callback Create.html/BeforeCreate has been activated");
 
 # Convert the CSV customfield arguments back into RT FreeForm text fields
-RT::Extension::CSVCustomFields::SpliceCSVFields($ARGSRef);
+my $errors = RT::Extension::CSVCustomFields::SpliceCSVFields(
+    $ARGSRef    => $ARGSRef,
+);
 
-</%INIT>
-<%ARGS>
-$ARGSRef => undef
-</%ARGS>
+if (@$errors) {
+    RT->Logger->error("Preventing create because update of ARGSRef failed");
+    $$skip_create = 1;
+    push @$results, @$errors;
+}
+</%init>

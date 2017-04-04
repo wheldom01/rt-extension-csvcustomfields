@@ -155,13 +155,21 @@ RT->AddStyleSheets('csvcustomfields.css')
     if $RT::StaticPath;
 
 sub SpliceCSVFields {
-    my $ARGSRef = shift;
+    my $self = shift;
+    my %args = (
+        ARGSRef => undef,
+    );
+    my $ARGSRef = $args{'ARGSRef'};
+    my @errors;
 
     # We are only interested if the keys containing Rows and Columns
     my @Subkeys;
     foreach my $key (keys %$ARGSRef) {
         push (@Subkeys, $key) if $key =~ m/--Row\d+-Col\d+/xms;
     }
+
+    # Return early if we don't have any CSVCustomFields
+    return \@errors if not scalar @Subkeys;
 
     # A simple sort is enough to put them in the correct order
     @Subkeys = sort(@Subkeys);
@@ -180,6 +188,8 @@ sub SpliceCSVFields {
         $CF_hash->{$key} = join '', @lines;
         $ARGSRef->{$key} = $CF_hash->{$key};
     }
+
+    return \@errors;
 
 }
 
