@@ -48,6 +48,15 @@ sub import {
         $args{'testing'} = 'RT::Extension::CSVCustomFields';
     }
 
+    $args{'config'} =<<CONFIG;
+Set(%CSVCustomFields,
+    'testcsv' => [
+        { 'title' => "CsvColumn1TitleText" },
+        { 'title' => "CsvColumn2TitleText" },
+    ],
+);
+CONFIG
+
     $class->SUPER::import( %args );
     $class->export_to_level(1);
 
