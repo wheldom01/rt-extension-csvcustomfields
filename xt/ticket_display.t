@@ -32,8 +32,8 @@ ok $cf && $cf->id, "Created Text customfield";
 # open ticket "Basics" page
 $m->get_ok($DisplayUrl, "Fetched $DisplayUrl");
 $m->content_contains('normal');
-$m->content_lacks('Wibble');
-$m->content_lacks('Wobble');
+$m->content_lacks('CsvColumn1TitleText');
+$m->content_lacks('CsvColumn2TitleText');
 
 # FIXME: only added to tidy output till warning is removed from callback
 $m->warning_like(qr/Callback activated/);
@@ -50,8 +50,8 @@ ok $csv_cf && $csv_cf->id, "Created CSV customfield";
 # open ticket "Basics" page
 $m->get_ok($DisplayUrl, "Fetched $DisplayUrl");
 $m->content_contains('testcsv:');
-$m->content_contains('Wibble');
-$m->content_contains('Wobble');
+$m->content_contains('CsvColumn1TitleText');
+$m->content_contains('CsvColumn2TitleText');
 
 # FIXME: only added to tidy output till warning is removed from callback
 $m->warning_like(qr/Callback activated/);
