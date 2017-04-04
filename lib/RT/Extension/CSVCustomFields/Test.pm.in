@@ -51,8 +51,8 @@ sub import {
     $args{'config'} =<<CONFIG;
 Set(%CSVCustomFields,
     'testcsv' => [
-        { 'title' => "Wibble" },
-        { 'title' => "Wobble" },
+        { 'title' => "CsvColumn1TitleText" },
+        { 'title' => "CsvColumn2TitleText" },
     ],
 );
 CONFIG
