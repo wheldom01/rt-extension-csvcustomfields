@@ -36,7 +36,7 @@ $m->content_lacks('CsvColumn1TitleText');
 $m->content_lacks('CsvColumn2TitleText');
 
 # FIXME: only added to tidy output till warning is removed from callback
-$m->warning_like(qr/Callback activated/);
+#$m->warning_like(qr/Callback activated/);
 
 # Create the csvcustom field
 my $csv_cf = RT::Test->load_or_create_custom_field(
@@ -54,10 +54,8 @@ $m->content_contains('CsvColumn1TitleText');
 $m->content_contains('CsvColumn2TitleText');
 
 # FIXME: only added to tidy output till warning is removed from callback
-$m->warning_like(qr/Callback activated/);
+#$m->warning_like(qr/Callback activated/);
 
 undef $m;
 done_testing;
-
-1;
 

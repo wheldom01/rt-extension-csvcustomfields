@@ -105,22 +105,14 @@ note "Check that the form submitted and information updated";
     my $cf_id = $csv_cf->id;
     my $name = "Object-RT::Ticket-$t_id-CustomField-$cf_id-Values";
 
-    # open ticket "Modify.html" page
-    $m->get_ok($ModifyUrl, "fetched $ModifyUrl");
-    ok $m->form_name('TicketModify'), "found form TicketModify";
+    # open ticket "Display.html" page
+    $m->get_ok($DisplayUrl, "fetched $DisplayUrl");
 
-    $m->content_contains('testcsv:');
-    my @inputs;
-    for my $x (0..1) {
-        for my $y (0..1) {
-            @inputs = $m->grep_inputs( {
-                                    type => qr/^(textarea|hidden)$/,
-                                    name => qr/^$name--Row$x-Col$y$/,
-                                    } );
-            # FIXME: need to check content of form field should be empty
-            is scalar @inputs, 1, "found form field $name--Row$x-Col$y";
-        }
-    }
+    $m->content_contains('CsvColumn1TitleText');
+    $m->content_contains('CsvColumn2TitleText');
+    $m->content_contains('foo');
+    $m->content_contains('bar');
+
 }
 
 undef $m;
