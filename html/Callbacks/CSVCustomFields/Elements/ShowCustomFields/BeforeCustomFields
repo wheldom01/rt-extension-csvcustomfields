@@ -17,8 +17,7 @@
 % #
 
 <%INIT>
-# FIXME: needs changing to debug
-$RT::Logger->error("Callback activated");
+$RT::Logger->debug("Callback ShowCustomFields/BeforeCustomFields activated");
 my $settings = RT->Config->Get('CSVCustomFields');
 
 # Loop over the customfields and display multi line csv fields
