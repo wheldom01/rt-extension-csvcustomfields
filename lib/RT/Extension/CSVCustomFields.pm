@@ -156,25 +156,12 @@ RT->AddStyleSheets('csvcustomfields.css')
 
 sub SpliceCSVFields {
     my $self = shift;
-    my %args = (
-        ARGSRef => undef,
-    );
-    my $ARGSRef = $args{'ARGSRef'};
-    my @errors;
-
-    # We are only interested if the keys containing Rows and Columns
-    my @Subkeys;
-    foreach my $key (keys %$ARGSRef) {
-        push (@Subkeys, $key) if $key =~ m/--Row\d+-Col\d+/xms;
-    }
-
-    # Return early if we don't have any CSVCustomFields
-    return \@errors if not scalar @Subkeys;
+    my $FieldsRef = shift;
 
     # A simple sort is enough to put them in the correct order
-    @Subkeys = sort(@Subkeys);
+    my @Subkeys = sort keys %$FieldsRef;
 
-    my $CF_hash = ConvertFormFields(\@Subkeys, $ARGSRef);
+    my $CF_hash = ConvertFormFields(\@Subkeys, $FieldsRef);
 
     # Now tidy up and push the CF data back into the ARGSRef
     foreach my $key (keys %$CF_hash) {
@@ -186,18 +173,18 @@ sub SpliceCSVFields {
         @lines = grep { not /^,{1,}$/ } @lines;
         @lines = map { s/,*$/\n/; $_ } @lines;
         $CF_hash->{$key} = join '', @lines;
-        $ARGSRef->{$key} = $CF_hash->{$key};
+        $FieldsRef->{$key} = $CF_hash->{$key};
     }
 
-    return \@errors;
+    return $CF_hash;
 
 }
 
 sub ConvertFormFields {
-    my $FIELDSRef = shift;
-    my $ARGSRef = shift;
+    my $Keys = shift;
+    my $FieldsRef = shift;
 
-    my $DATARef = {};
+    my $DataRef = {};
     my @tmp;
     my $value = q{};
     my $cf = q{};
@@ -205,7 +192,7 @@ sub ConvertFormFields {
     my $previous_row = 0;
 
     # Assemble into a RT FreeForm text format
-    foreach my $key (@$FIELDSRef) {
+    foreach my $key (@$Keys) {
         ($cf, $this_row) = $key =~ m/\A         # Match start of string
                                      ([\w\-:]+) # Capture the CustomField
                                      --Row
@@ -215,18 +202,15 @@ sub ConvertFormFields {
         # Apply a line ending if we have reached the last column
         if ($this_row > $previous_row) {
             #$value =~ s/,$/\n/;
-            $DATARef->{$cf} =~ s/,$/\n/;
+            $DataRef->{$cf} =~ s/,$/\n/;
         }
         $previous_row = $this_row;
 
         # Build the CF csv data and push into a temporary hash
-        $DATARef->{$cf} .= $ARGSRef->{$key} . ",";
-
-        # Remove all the keys as they would cause duplicate data to be added
-        delete $ARGSRef->{$key};
+        $DataRef->{$cf} .= $FieldsRef->{$key} . ",";
     }
 
-    return $DATARef;
+    return $DataRef;
 
 }
 
