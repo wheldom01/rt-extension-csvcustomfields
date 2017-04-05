@@ -35,7 +35,7 @@ CONFIGURATION
         );
 
     The CustomField "Books" will utilise the hardcoded default column titles
-    of "Title" and "Description". However the configeration syntax allows
+    of "Title" and "Description". However the configuration syntax allows
     you to have more columns if required and to name those column titles as
     you see fit.
 
