@@ -159,7 +159,7 @@ my $print_content = sub {
         $input = sprintf("<input %s %s %s %s>", $input_id, $input_name, $input_type,
                                                 $input_value);
         $input .= $field if $cell_type =~ m/\Ath\z/xms;
-        $cell .= sprintf("%s %s %s>%s", $cell_type, $id, $class);
+        $cell .= sprintf("%s %s %s>", $cell_type, $id, $class);
 
         # Output opening cell tags
         $m->out(sprintf("    %s\n", $cell));
