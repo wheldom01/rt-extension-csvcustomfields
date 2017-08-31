@@ -14,4 +14,4 @@ install:
     - docker ps -a
 
 script:
-    - docker exec -it rt bash -c "cd /rtx && RELEASE_TESTING=1 perl Makefile.PL && make && make test"
+    - docker exec -it rt bash -c "cpanm Text::CSV && cd /rtx && RELEASE_TESTING=1 perl Makefile.PL && make && make test"
